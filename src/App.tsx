@@ -6,12 +6,13 @@ function App() {
   useEffect(()=> {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d')
+      ctx?.fillRect( 20, 20, 50, 60 )
       console.log(ctx)
     }
     }, []
   )
   return(
-  <canvas ref={canvasRef} width={400} height={400}/>
+  <canvas ref={canvasRef} width={400} height={400} style={{ border: '1px solid black' }}/>
   )
 
 } 
