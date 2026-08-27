@@ -81,30 +81,34 @@ function App() {
   useEffect(()=> {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d')
+      const originX = 200
+      const originY = 100
+      const height = 40
+
+      const colors = {
+        top: '#a0a0a0',
+        left: '#222222',
+        right: '#636363'
+      }
+
+      const positions = [
+        {gridX: 0, gridY: 0},
+        {gridX: 1, gridY: 2},
+        {gridX: 2, gridY: 1},
+        {gridX: 2, gridY: 4},
+        {gridX: 4, gridY: 2},
+        {gridX: 3, gridY: 3},
+      ]
+
       if (ctx) {
-        drawCube(ctx, {
-          gridX: 0,
-          gridY: 0,
-          originX: 200,
-          originY: 100,
-          height: 40,
-          colors: {
-            top: '#a0a0a0',
-            left: '#222222',
-            right: '#636363'
-          }
-        })
-        drawCube(ctx, {
-          gridX: 1,
-          gridY: 0,
-          originX: 200,
-          originY: 100,
-          height: 40,
-          colors: {
-            top: '#a0a0a0',
-            left: '#222222',
-            right: '#636363'
-          }
+        positions.forEach((pos) => {
+          drawCube(ctx, {
+            ...pos,
+            originX,
+            originY,
+            height,
+            colors
+          })
         })
       }
     }
