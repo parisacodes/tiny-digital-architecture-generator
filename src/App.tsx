@@ -73,11 +73,11 @@ function drawCube(ctx: CanvasRenderingContext2D, options:{
   ctx.fill()
 }
 
-function generateRandomPositions(count: number, maxGrid:number) {
+function generateRandomPositions(count: number, maxGrid:number, randomFunction: () => number) {
   const positions = []
   for (let i = 0; i < count; i++) {
-    const randomGridX = Math.floor(Math.random() * maxGrid)
-    const randomGridY = Math.floor(Math.random() * maxGrid)
+    const randomGridX = Math.floor(randomFunction() * maxGrid)
+    const randomGridY = Math.floor(randomFunction() * maxGrid)
     positions.push({
       gridX: randomGridX,
       gridY: randomGridY
@@ -86,10 +86,23 @@ function generateRandomPositions(count: number, maxGrid:number) {
     return positions
 }
 
+function createSeededRandom(seed: number) {
+    return function() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+}
+
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  
+  const seedRef = useRef(12345)
+  function handleRegenerate() {
+    seedRef.current = seedRef.current + 1
+    renderScene()
+  }
   function renderScene() {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d')
@@ -103,8 +116,9 @@ function App() {
           top: '#a0a0a0',
           left: '#222222',
           right: '#636363'}
-        
-        const positions = generateRandomPositions(6, 5)
+       
+        const randomGenerator = createSeededRandom(seedRef.current)
+        const positions = generateRandomPositions(6, 5, randomGenerator)
         positions.forEach((pos) => {
           drawCube(ctx, {
             ...pos,
@@ -127,7 +141,7 @@ function App() {
   return(
   <div>
     <canvas ref={canvasRef} width={400} height={400} style={{ border: '1px solid black' }}/>
-    <button onClick={renderScene}>Regenerate</button>
+    <button onClick={handleRegenerate}>Regenerate</button>
   </div>
   )
 
