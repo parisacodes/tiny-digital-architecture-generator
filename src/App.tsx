@@ -110,19 +110,38 @@ function drawCube(
   ctx.fill()
 }
 
-function generateRandomPositions(count: number, maxGrid:number, randomFunction: () => number) {
+function generateRandomPositions(
+  count: number,
+  maxGrid: number,
+  randomFunction: () => number
+) {
   const positions = []
+  const usedPositions = new Set<string>()
+
   for (let i = 0; i < count; i++) {
-    const randomGridX = Math.floor(randomFunction() * maxGrid)
-    const randomGridY = Math.floor(randomFunction() * maxGrid)
-    const randomHeight = (Math.floor(randomFunction() * 4) + 1) * 20
+    let randomGridX
+    let randomGridY
+    let key
+
+    do {
+      randomGridX = Math.floor(randomFunction() * maxGrid)
+      randomGridY = Math.floor(randomFunction() * maxGrid)
+      key = `${randomGridX},${randomGridY}`
+    } while (usedPositions.has(key))
+
+    usedPositions.add(key)
+
+    const randomHeight =
+      (Math.floor(randomFunction() * 4) + 1) * 20
+
     positions.push({
       gridX: randomGridX,
       gridY: randomGridY,
       height: randomHeight
     })
   }
-    return positions
+
+  return positions
 }
 
 function createSeededRandom(seed: number) {
