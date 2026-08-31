@@ -14,7 +14,9 @@ function project(gridX: number, gridY: number, originX: number, originY: number)
   return { x: p.x + originX, y: p.y + originY }
 }
 
-function drawCube(ctx: CanvasRenderingContext2D, options:{
+function drawCube(
+  ctx: CanvasRenderingContext2D,
+  options: {
     gridX: number
     gridY: number
     originX: number
@@ -25,49 +27,84 @@ function drawCube(ctx: CanvasRenderingContext2D, options:{
       left: string
       right: string
     }
-  }) {
-  // Top face of the cube
+  }
+) {
+  // Ground/base points
+  const baseBackPoint = project(
+    options.gridX,
+    options.gridY,
+    options.originX,
+    options.originY
+  )
+
+  const baseRightPoint = project(
+    options.gridX + 1,
+    options.gridY,
+    options.originX,
+    options.originY
+  )
+
+  const baseFrontPoint = project(
+    options.gridX + 1,
+    options.gridY + 1,
+    options.originX,
+    options.originY
+  )
+
+  const baseLeftPoint = project(
+    options.gridX,
+    options.gridY + 1,
+    options.originX,
+    options.originY
+  )
+
+  // Roof points = corresponding base points moved upward by height
+  const roofBackPoint = {
+    x: baseBackPoint.x,
+    y: baseBackPoint.y - options.height
+  }
+
+  const roofRightPoint = {
+    x: baseRightPoint.x,
+    y: baseRightPoint.y - options.height
+  }
+
+  const roofFrontPoint = {
+    x: baseFrontPoint.x,
+    y: baseFrontPoint.y - options.height
+  }
+
+  const roofLeftPoint = {
+    x: baseLeftPoint.x,
+    y: baseLeftPoint.y - options.height
+  }
+
+  // Top face
   ctx.beginPath()
-  const topPoint = project(options.gridX, options.gridY, options.originX, options.originY)
-  ctx.moveTo(topPoint.x, topPoint.y)
-  const rightPoint = project(options.gridX+1, options.gridY, options.originX, options.originY)
-  ctx.lineTo(rightPoint.x, rightPoint.y)
-  const bottomPoint = project(options.gridX+1, options.gridY+1, options.originX, options.originY)
-  ctx.lineTo(bottomPoint.x, bottomPoint.y)
-  const leftPoint = project(options.gridX, options.gridY+1, options.originX, options.originY)
-  ctx.lineTo(leftPoint.x, leftPoint.y)
+  ctx.moveTo(roofBackPoint.x, roofBackPoint.y)
+  ctx.lineTo(roofRightPoint.x, roofRightPoint.y)
+  ctx.lineTo(roofFrontPoint.x, roofFrontPoint.y)
+  ctx.lineTo(roofLeftPoint.x, roofLeftPoint.y)
   ctx.closePath()
   ctx.fillStyle = options.colors.top
   ctx.fill()
 
-  // Left face of the cube
+  // Left face
   ctx.beginPath()
-  ctx.moveTo(leftPoint.x, leftPoint.y)
-  const bottomLeftPoint = {
-    x: leftPoint.x,
-    y: leftPoint.y + options.height
-  }
-  ctx.lineTo(bottomLeftPoint.x, bottomLeftPoint.y)
-  const frontBottomPoint = {
-    x: bottomPoint.x,
-    y: bottomPoint.y + options.height
-  }
-  ctx.lineTo(frontBottomPoint.x, frontBottomPoint.y)
-  ctx.lineTo(bottomPoint.x, bottomPoint.y)
+  ctx.moveTo(roofLeftPoint.x, roofLeftPoint.y)
+  ctx.lineTo(baseLeftPoint.x, baseLeftPoint.y)
+  ctx.lineTo(baseFrontPoint.x, baseFrontPoint.y)
+  ctx.lineTo(roofFrontPoint.x, roofFrontPoint.y)
   ctx.closePath()
   ctx.fillStyle = options.colors.left
   ctx.fill()
 
-  // Right face of the cube
+  // Right face
   ctx.beginPath()
-  ctx.moveTo(bottomPoint.x, bottomPoint.y)
-  ctx.lineTo(rightPoint.x, rightPoint.y)
-  const bottomRightPoint = {
-    x: rightPoint.x,
-    y: rightPoint.y + options.height
-  }
-  ctx.lineTo(bottomRightPoint.x, bottomRightPoint.y)
-  ctx.lineTo(frontBottomPoint.x, frontBottomPoint.y)
+  ctx.moveTo(roofFrontPoint.x, roofFrontPoint.y)
+  ctx.lineTo(roofRightPoint.x, roofRightPoint.y)
+  ctx.lineTo(baseRightPoint.x, baseRightPoint.y)
+  ctx.lineTo(baseFrontPoint.x, baseFrontPoint.y)
   ctx.closePath()
   ctx.fillStyle = options.colors.right
   ctx.fill()
@@ -78,9 +115,11 @@ function generateRandomPositions(count: number, maxGrid:number, randomFunction: 
   for (let i = 0; i < count; i++) {
     const randomGridX = Math.floor(randomFunction() * maxGrid)
     const randomGridY = Math.floor(randomFunction() * maxGrid)
+    const randomHeight = (Math.floor(randomFunction() * 4) + 1) * 20
     positions.push({
       gridX: randomGridX,
-      gridY: randomGridY
+      gridY: randomGridY,
+      height: randomHeight
     })
   }
     return positions
@@ -110,7 +149,6 @@ function App() {
         ctx.clearRect(0, 0, 400, 400)
         const originX = 200
         const originY = 100
-        const height = 40
 
         const colors = {
           top: '#a0a0a0',
@@ -119,12 +157,12 @@ function App() {
        
         const randomGenerator = createSeededRandom(seedRef.current)
         const positions = generateRandomPositions(6, 5, randomGenerator)
+        positions.sort((cubeA, cubeB) => (cubeA.gridX + cubeA.gridY) - (cubeB.gridX + cubeB.gridY))
         positions.forEach((pos) => {
           drawCube(ctx, {
             ...pos,
             originX,
             originY,
-            height,
             colors
           })
         })
