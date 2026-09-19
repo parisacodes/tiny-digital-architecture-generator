@@ -1,4 +1,5 @@
 import type { Box } from './geometry'
+import { getBoxFaces } from './geometry'
 import { createSeededRandom, deriveSubSeed } from './random'
 import { createOccupancy, canReserve, reserve } from './occupancy'
 import { sortBoxesForPainting } from './depthSort'
@@ -19,6 +20,7 @@ export interface GenerationParams {
   complexity: ComplexityLevel
 }
 
+/** The scene's natural extent in unscaled isometric screen-space units (origin 0,0), for fit-to-container sizing and export. */
 export interface SceneBounds {
   minX: number
   maxX: number
@@ -79,12 +81,39 @@ export function generateScene(params: GenerationParams): GeneratedScene {
     }
   }
 
-  const drawList = sortBoxesForPainting(structures.flatMap((structure) => structure.boxes))
+  const boxes = structures.flatMap((structure) => structure.boxes)
+  const drawList = sortBoxesForPainting(boxes)
 
   return {
     params,
     structures,
     drawList,
-    bounds: { minX: 0, maxX: gridSize, minY: 0, maxY: gridSize },
+    bounds: computeSceneBounds(boxes, gridSize),
   }
+}
+
+function computeSceneBounds(boxes: Box[], gridSize: number): SceneBounds {
+  if (boxes.length === 0) {
+    const half = (gridSize * 64) / 2
+    return { minX: -half, maxX: half, minY: 0, maxY: gridSize * 32 }
+  }
+
+  let minX = Infinity
+  let maxX = -Infinity
+  let minY = Infinity
+  let maxY = -Infinity
+
+  for (const box of boxes) {
+    const faces = getBoxFaces(box, 0, 0)
+    for (const face of [faces.top, faces.left, faces.right]) {
+      for (const point of face) {
+        if (point.x < minX) minX = point.x
+        if (point.x > maxX) maxX = point.x
+        if (point.y < minY) minY = point.y
+        if (point.y > maxY) maxY = point.y
+      }
+    }
+  }
+
+  return { minX, maxX, minY, maxY }
 }
