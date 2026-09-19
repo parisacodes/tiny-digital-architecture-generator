@@ -1,5 +1,10 @@
 import { project, type ScreenPoint } from './isometric'
 
+export interface GridCoord {
+  x: number
+  y: number
+}
+
 /** A rectangular footprint on the ground grid, in grid units. */
 export interface GridFootprint {
   x: number
