@@ -73,13 +73,123 @@ select {
   overflow-y: auto;
 }
 
+.panel-header h1 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.panel-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-panel button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.control-panel button:hover {
+  border-color: var(--accent);
+}
+
+.control-panel button.primary-action {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.seed-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.seed-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.seed-field-row {
+  display: flex;
+  gap: 8px;
+}
+
+.seed-field-row input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.seed-field-row button {
+  flex: 0 0 auto;
+}
+
+.step-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step-group legend {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0;
+}
+
+.step-group-options {
+  display: flex;
+  gap: 6px;
+}
+
+.step-option {
+  flex: 1;
+  font-size: 13px;
+  padding: 7px 8px;
+}
+
+.step-option-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     flex-direction: column;
   }
 
+  .scene-canvas-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .control-panel {
     width: auto;
+    max-height: 45vh;
     border-left: none;
     border-top: 1px solid var(--border);
   }
