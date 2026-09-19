@@ -1,103 +1,8 @@
 import './App.css'
 import { useRef, useEffect } from 'react'
-import { project } from './lib/isometric'
 import { createSeededRandom } from './lib/random'
-
-function drawCube(
-  ctx: CanvasRenderingContext2D,
-  options: {
-    gridX: number
-    gridY: number
-    originX: number
-    originY: number
-    height: number
-    colors: {
-      top: string
-      left: string
-      right: string
-    }
-  }
-) {
-  // Ground/base points
-  const baseBackPoint = project(
-    options.gridX,
-    options.gridY,
-    options.originX,
-    options.originY
-  )
-
-  const baseRightPoint = project(
-    options.gridX + 1,
-    options.gridY,
-    options.originX,
-    options.originY
-  )
-
-  const baseFrontPoint = project(
-    options.gridX + 1,
-    options.gridY + 1,
-    options.originX,
-    options.originY
-  )
-
-  const baseLeftPoint = project(
-    options.gridX,
-    options.gridY + 1,
-    options.originX,
-    options.originY
-  )
-
-  // Roof points = corresponding base points moved upward by height
-  const roofBackPoint = {
-    x: baseBackPoint.x,
-    y: baseBackPoint.y - options.height
-  }
-
-  const roofRightPoint = {
-    x: baseRightPoint.x,
-    y: baseRightPoint.y - options.height
-  }
-
-  const roofFrontPoint = {
-    x: baseFrontPoint.x,
-    y: baseFrontPoint.y - options.height
-  }
-
-  const roofLeftPoint = {
-    x: baseLeftPoint.x,
-    y: baseLeftPoint.y - options.height
-  }
-
-  // Top face
-  ctx.beginPath()
-  ctx.moveTo(roofBackPoint.x, roofBackPoint.y)
-  ctx.lineTo(roofRightPoint.x, roofRightPoint.y)
-  ctx.lineTo(roofFrontPoint.x, roofFrontPoint.y)
-  ctx.lineTo(roofLeftPoint.x, roofLeftPoint.y)
-  ctx.closePath()
-  ctx.fillStyle = options.colors.top
-  ctx.fill()
-
-  // Left face
-  ctx.beginPath()
-  ctx.moveTo(roofLeftPoint.x, roofLeftPoint.y)
-  ctx.lineTo(baseLeftPoint.x, baseLeftPoint.y)
-  ctx.lineTo(baseFrontPoint.x, baseFrontPoint.y)
-  ctx.lineTo(roofFrontPoint.x, roofFrontPoint.y)
-  ctx.closePath()
-  ctx.fillStyle = options.colors.left
-  ctx.fill()
-
-  // Right face
-  ctx.beginPath()
-  ctx.moveTo(roofFrontPoint.x, roofFrontPoint.y)
-  ctx.lineTo(roofRightPoint.x, roofRightPoint.y)
-  ctx.lineTo(baseRightPoint.x, baseRightPoint.y)
-  ctx.lineTo(baseFrontPoint.x, baseFrontPoint.y)
-  ctx.closePath()
-  ctx.fillStyle = options.colors.right
-  ctx.fill()
-}
+import type { Box } from './lib/geometry'
+import { drawBox } from './render'
 
 function generateRandomPositions(
   count: number,
@@ -157,12 +62,12 @@ function App() {
         const positions = generateRandomPositions(6, 5, randomGenerator)
         positions.sort((cubeA, cubeB) => (cubeA.gridX + cubeA.gridY) - (cubeB.gridX + cubeB.gridY))
         positions.forEach((pos) => {
-          drawCube(ctx, {
-            ...pos,
-            originX,
-            originY,
-            colors
-          })
+          const box: Box = {
+            footprint: { x: pos.gridX, y: pos.gridY, width: 1, depth: 1 },
+            elevation: 0,
+            height: pos.height
+          }
+          drawBox(ctx, box, originX, originY, colors)
         })
 
         }
