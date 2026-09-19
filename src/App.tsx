@@ -1,13 +1,8 @@
 import './App.css'
 import { useRef, useEffect } from 'react'
 import { DEFAULT_PARAMS, generateScene } from './lib/generation'
-import { drawBox, type FaceColors } from './render'
-
-const PLACEHOLDER_COLORS: FaceColors = {
-  top: '#a0a0a0',
-  left: '#222222',
-  right: '#636363',
-}
+import { derivePalette } from './lib/palette'
+import { drawScene } from './render'
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -18,14 +13,13 @@ function App() {
     const ctx = canvasRef.current.getContext('2d')
     if (!ctx) return
 
-    ctx.clearRect(0, 0, 400, 400)
-    const originX = 200
-    const originY = 150
+    const width = 400
+    const height = 400
+    const params = { ...DEFAULT_PARAMS, seed: seedRef.current }
+    const scene = generateScene(params)
+    const palette = derivePalette(params.paletteSeed)
 
-    const scene = generateScene({ ...DEFAULT_PARAMS, seed: seedRef.current })
-    scene.drawList.forEach((box) => {
-      drawBox(ctx, box, originX, originY, PLACEHOLDER_COLORS)
-    })
+    drawScene(ctx, scene, palette, width, height, width / 2, height / 2.5)
   }
 
   function handleRegenerate() {
