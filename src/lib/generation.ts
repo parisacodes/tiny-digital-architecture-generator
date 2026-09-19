@@ -1,9 +1,18 @@
 import type { Box } from './geometry'
 import { getBoxFaces } from './geometry'
-import { createSeededRandom, deriveSubSeed } from './random'
+import { createSeededRandom, deriveSubSeed, type RandomFn } from './random'
 import { createOccupancy, canReserve, reserve } from './occupancy'
 import { sortBoxesForPainting } from './depthSort'
-import { buildCube, type Structure } from './structures'
+import {
+  buildArch,
+  buildColumn,
+  buildCube,
+  buildStaircase,
+  buildWall,
+  type HeightRange,
+  type Structure,
+  type StructureKind,
+} from './structures'
 
 export type DensityLevel = 'sparse' | 'balanced' | 'dense'
 export type HeightVariationLevel = 'uniform' | 'varied' | 'dramatic'
@@ -44,11 +53,40 @@ const HEIGHT_RANGES: Record<HeightVariationLevel, { min: number; max: number }> 
   dramatic: { min: 16, max: 110 },
 }
 
-// Multi-cell shapes (added in a later milestone) can't always fit as
-// densely as single cells, so placement is best-effort: try a bounded
-// number of candidates and accept however many actually fit, rather than
-// retrying forever.
-const MAX_ATTEMPTS_PER_STRUCTURE = 8
+// Multi-cell shapes can't always fit as densely as single cells, so
+// placement is best-effort: try a bounded number of candidates and accept
+// however many actually fit, rather than retrying forever.
+const MAX_ATTEMPTS_PER_STRUCTURE = 15
+
+type RecipeBuilder = (origin: { x: number; y: number }, heightRange: HeightRange, rng: RandomFn) => Structure
+
+const RECIPES: Record<StructureKind, RecipeBuilder> = {
+  cube: buildCube,
+  column: buildColumn,
+  wall: buildWall,
+  staircase: buildStaircase,
+  arch: buildArch,
+}
+
+// Arches (the busiest, most eye-catching form) only become reachable at
+// higher complexity, so compositions stay coherent rather than chaotic as
+// complexity increases.
+const COMPLEXITY_WEIGHTS: Record<ComplexityLevel, Partial<Record<StructureKind, number>>> = {
+  minimal: { cube: 0.6, column: 0.4 },
+  moderate: { cube: 0.4, column: 0.25, wall: 0.2, staircase: 0.15 },
+  elaborate: { cube: 0.25, column: 0.2, wall: 0.15, staircase: 0.2, arch: 0.2 },
+}
+
+function pickKind(rng: RandomFn, complexity: ComplexityLevel): StructureKind {
+  const weights = Object.entries(COMPLEXITY_WEIGHTS[complexity]) as [StructureKind, number][]
+  const total = weights.reduce((sum, [, weight]) => sum + weight, 0)
+  let roll = rng() * total
+  for (const [kind, weight] of weights) {
+    if (roll < weight) return kind
+    roll -= weight
+  }
+  return weights[weights.length - 1][0]
+}
 
 export const DEFAULT_PARAMS: GenerationParams = {
   seed: 12345,
@@ -74,7 +112,8 @@ export function generateScene(params: GenerationParams): GeneratedScene {
   const structures: Structure[] = []
   for (let attempts = 0; structures.length < targetCount && attempts < maxAttempts; attempts++) {
     const origin = { x: Math.floor(rng() * gridSize), y: Math.floor(rng() * gridSize) }
-    const structure = buildCube(origin, heightRange, rng)
+    const kind = pickKind(rng, params.complexity)
+    const structure = RECIPES[kind](origin, heightRange, rng)
     if (canReserve(occupancy, structure.footprint)) {
       reserve(occupancy, structure.footprint)
       structures.push(structure)

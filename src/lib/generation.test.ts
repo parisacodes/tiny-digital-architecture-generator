@@ -28,6 +28,9 @@ describe('generateScene constraints', () => {
     { ...DEFAULT_PARAMS, gridSize: 'small', density: 'dense' },
     { ...DEFAULT_PARAMS, gridSize: 'large', density: 'sparse' },
     { ...DEFAULT_PARAMS, heightVariation: 'dramatic' },
+    { ...DEFAULT_PARAMS, complexity: 'minimal' },
+    { ...DEFAULT_PARAMS, complexity: 'elaborate' },
+    { ...DEFAULT_PARAMS, complexity: 'elaborate', gridSize: 'small', density: 'dense' },
   ]
 
   it('never reserves overlapping cells between different structures, across seeds and param combos', () => {
@@ -67,5 +70,23 @@ describe('generateScene constraints', () => {
     const scene = generateScene(DEFAULT_PARAMS)
     const totalBoxes = scene.structures.reduce((sum, s) => sum + s.boxes.length, 0)
     expect(scene.drawList.length).toBe(totalBoxes)
+  })
+
+  it('produces multiple distinct structure kinds at elaborate complexity, across several seeds', () => {
+    const kinds = new Set<string>()
+    for (let seed = 0; seed < 20; seed++) {
+      const scene = generateScene({ ...DEFAULT_PARAMS, complexity: 'elaborate', gridSize: 'large', seed })
+      for (const structure of scene.structures) kinds.add(structure.kind)
+    }
+    expect(kinds.size).toBeGreaterThan(1)
+  })
+
+  it('never produces a wall, staircase, or arch at minimal complexity', () => {
+    for (let seed = 0; seed < 20; seed++) {
+      const scene = generateScene({ ...DEFAULT_PARAMS, complexity: 'minimal', seed })
+      for (const structure of scene.structures) {
+        expect(['cube', 'column']).toContain(structure.kind)
+      }
+    }
   })
 })
