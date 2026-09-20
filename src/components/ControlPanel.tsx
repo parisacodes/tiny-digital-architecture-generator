@@ -11,6 +11,7 @@ interface ControlPanelProps {
   params: GenerationParams
   onRegenerate: () => void
   onShufflePalette: () => void
+  onExport: () => void
   onUpdateParam: <K extends keyof GenerationParams>(key: K, value: GenerationParams[K]) => void
 }
 
@@ -127,7 +128,13 @@ function SeedField({ seed, onChangeSeed }: { seed: number; onChangeSeed: (seed: 
   )
 }
 
-export function ControlPanel({ params, onRegenerate, onShufflePalette, onUpdateParam }: ControlPanelProps) {
+export function ControlPanel({
+  params,
+  onRegenerate,
+  onShufflePalette,
+  onExport,
+  onUpdateParam,
+}: ControlPanelProps) {
   return (
     <aside className="control-panel">
       <div className="panel-header">
@@ -170,6 +177,10 @@ export function ControlPanel({ params, onRegenerate, onShufflePalette, onUpdateP
         options={COMPLEXITY_OPTIONS}
         onChange={(value) => onUpdateParam('complexity', value)}
       />
+
+      <button type="button" onClick={onExport}>
+        Export PNG
+      </button>
     </aside>
   )
 }
