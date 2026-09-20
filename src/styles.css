@@ -63,6 +63,7 @@ select {
 
 .control-panel {
   flex: 0 0 auto;
+  min-width: 0;
   width: 280px;
   display: flex;
   flex-direction: column;
@@ -192,7 +193,7 @@ select {
   }
 
   .control-panel {
-    width: auto;
+    width: 100%;
     max-height: 45vh;
     border-left: none;
     border-top: 1px solid var(--border);
