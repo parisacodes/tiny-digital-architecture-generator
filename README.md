@@ -1,32 +1,55 @@
-# React + TypeScript + Vite
+# Tiny Digital Architecture
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An experimental procedural architecture generator built with React, TypeScript, and the HTML Canvas API.
 
-Currently, two official plugins are available:
+The project generates small isometric architectural compositions from a seed. I'm building it as an exploration of procedural generation, geometry, color, and generative visual design.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+> **Status:** Work in progress. The core generation system is functional, but I'm still developing the visual system and expanding the generator.
 
-## React Compiler
+## Current Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Seeded, deterministic scene generation
+- Isometric rendering with the Canvas API
+- Multiple procedural structure types:
+  - Cubes
+  - Columns
+  - Walls
+  - Staircases
+  - Arches
+- Configurable grid size, density, height variation, and complexity
+- Collision-aware structure placement
+- Depth sorting for correct isometric rendering
+- Seed-derived color palettes with independent palette shuffling
+- URL-synced generation parameters for reproducible/shareable compositions
+- Responsive, device-pixel-ratio-aware canvas rendering
+- PNG export
+- Unit tests for core generation utilities
 
-## Expanding the Oxlint configuration
+## In Progress
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+The project is still evolving. Current areas I'm working on include:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- Expanding the procedural structure system
+- Improving composition and generation rules
+- Refining palettes, lighting, and visual style
+- Improving the controls and overall UI
+- Adding more tests as the generation system grows
+
+## Tech
+
+- React
+- TypeScript
+- Vite
+- HTML Canvas API
+- Vitest
+
+## Running Locally
+
+Requires Node.js 20.
+
+```bash
+git clone https://github.com/parisacodes/tiny-digital-architecture-generator.git
+cd tiny-digital-architecture-generator
+npm install
+npm run dev
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
